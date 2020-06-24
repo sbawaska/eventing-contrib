@@ -19,39 +19,39 @@ package resources
 import (
 	"fmt"
 
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/pkg/kmeta"
 
-	v1 "knative.dev/serving/pkg/apis/serving/v1"
-
-	sourcesv1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
+	sourcesv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
 )
 
 type ServiceArgs struct {
 	ReceiveAdapterImage string
-	Source              *sourcesv1alpha1.GitHubSource
+	Source              *sourcesv1alpha1.RegistrySource
 }
 
-// MakeService generates, but does not create, a Service for the given
+// MakeDeployment generates, but does not create, a Service for the given
 // RegistrySource.
-//func MakeService(source *sourcesv1alpha1.RegistrySource, receiveAdapterImage string) *servingv1alpha1.Service {
-func MakeService(args *ServiceArgs) *v1.Service {
+//func MakeDeployment(source *sourcesv1alpha1.RegistrySource, receiveAdapterImage string) *servingv1alpha1.Service {
+func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 	labels := map[string]string{
-		"receive-adapter": "github",
+		"receive-adapter": "registry",
 	}
 	sinkURI := args.Source.Status.SinkURI
 	env := []corev1.EnvVar{{
-		Name: "GITHUB_SECRET_TOKEN",
-		ValueFrom: &corev1.EnvVarSource{
-			SecretKeyRef: args.Source.Spec.SecretToken.SecretKeyRef,
-		},
-	}, {
 		Name:  "K_SINK",
 		Value: sinkURI.String(),
 	}, {
-		Name:  "GITHUB_OWNER_REPO",
+		Name:  "REGISTRY_OWNER_REPO",
 		Value: args.Source.Spec.OwnerAndRepository,
+	}, {
+		Name:  "REGISTRY_BASE_URL",
+		Value: args.Source.Spec.RegistryBaseURL,
+	}, {
+		Name:  "POLL_INTERVAL",
+		Value: args.Source.Spec.PollInterval,
 	}, {
 		Name:  "NAMESPACE",
 		Value: args.Source.Namespace,
@@ -65,7 +65,7 @@ func MakeService(args *ServiceArgs) *v1.Service {
 		Name:  "K_LOGGING_CONFIG",
 		Value: "",
 	}}
-	return &v1.Service{
+	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: fmt.Sprintf("%s-", args.Source.Name),
 			Namespace:    args.Source.Namespace,
@@ -74,17 +74,20 @@ func MakeService(args *ServiceArgs) *v1.Service {
 				*kmeta.NewControllerRef(args.Source),
 			},
 		},
-		Spec: v1.ServiceSpec{
-			ConfigurationSpec: v1.ConfigurationSpec{
-				Template: v1.RevisionTemplateSpec{
-					Spec: v1.RevisionSpec{
-						PodSpec: corev1.PodSpec{
-							Containers: []corev1.Container{{
-								Image: args.ReceiveAdapterImage,
-								Env:   env,
-							}},
-						},
-					},
+		Spec: appsv1.DeploymentSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: labels,
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Name: "registry-poller",
+						Image: args.ReceiveAdapterImage,
+						Env:   env,
+					}},
 				},
 			},
 		},

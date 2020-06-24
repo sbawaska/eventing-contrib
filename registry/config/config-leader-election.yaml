@@ -15,7 +15,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config-leader-election-github
+  name: config-leader-election-registry
   namespace: knative-sources
   labels:
     contrib.eventing.knative.dev/release: devel
@@ -61,5 +61,5 @@ data:
     # enabledComponents is a comma-delimited list of component names for which
     # leader election is enabled. Valid values are:
     #
-    # - github-controller
-    enabledComponents: "github-controller"
+    # - registry-controller
+    enabledComponents: "registry-controller"

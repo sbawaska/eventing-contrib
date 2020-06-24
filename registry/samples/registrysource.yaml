@@ -11,42 +11,38 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: sources.knative.dev/v1alpha1
-kind: GitHubSource
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: githubsource-sample
+  name: cm-reader
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cm-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cm-reader
+---
+apiVersion: sources.knative.dev/v1alpha1
+kind: RegistrySource
+metadata:
+  name: registrysource-sample
 spec:
   eventTypes:
-  - pull_request
-  ownerAndRepository: "<your GitHub org>/<your GitHub repo>"
-  accessToken:
-    secretKeyRef:
-      name: githubsecret
-      key: accessToken
-  secretToken:
-    secretKeyRef:
-      name: githubsecret
-      key: secretToken
+  - create
+  - update
+  ownerAndRepository: "username/image-name"
   sink:
     ref:
-      apiVersion: messaging.knative.dev/v1alpha1
-      kind: InMemoryChannel
-      name: githubchannel
-
----
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: githubsecret
-type: Opaque
-stringData:
-  accessToken: "<your GitHub access token>"
-  secretToken: "<your secret token>"
-
----
-
-apiVersion: messaging.knative.dev/v1alpha1
-kind: InMemoryChannel
-metadata:
-  name: githubchannel
+      apiVersion: eventing.knative.dev/v1beta1
+      kind: Broker
+      name: my-broker

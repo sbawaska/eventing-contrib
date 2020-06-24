@@ -15,23 +15,23 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: github-controller-manager
+  name: registry-controller-manager
   namespace: knative-sources
   labels:
     contrib.eventing.knative.dev/release: devel
-    control-plane: github-controller-manager
+    control-plane: registry-controller-manager
 spec:
   selector:
     matchLabels: &labels
-      control-plane: github-controller-manager
-  serviceName: github-controller-manager
+      control-plane: registry-controller-manager
+  serviceName: registry-controller-manager
   template:
     metadata:
       labels: *labels
     spec:
-      serviceAccountName: github-controller-manager
+      serviceAccountName: registry-controller-manager
       containers:
-      - image: ko://knative.dev/eventing-contrib/github/cmd/controller
+      - image: ko://knative.dev/eventing-contrib/registry/cmd/controller
         name: manager
         env:
         - name: SYSTEM_NAMESPACE
@@ -43,11 +43,11 @@ spec:
         - name: CONFIG_OBSERVABILITY_NAME
           value: config-observability
         - name: CONFIG_LEADERELECTION_NAME
-          value: config-leader-election-github
+          value: config-leader-election-registry
         - name: METRICS_DOMAIN
           value: knative.dev/sources
-        - name: GH_RA_IMAGE
-          value: ko://knative.dev/eventing-contrib/github/cmd/receive_adapter
+        - name: REG_RA_IMAGE
+          value: ko://knative.dev/eventing-contrib/registry/cmd/receive_adapter
         resources:
           requests:
             cpu: 100m

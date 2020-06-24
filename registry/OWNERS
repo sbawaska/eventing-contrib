@@ -1,9 +1,9 @@
 approvers:
-  - github-approvers
+  - registry-approvers
 
 reviewers:
-  - github-reviewers
+  - registry-reviewers
 
 labels:
-  - area/GitHub
+  - area/Registry
 

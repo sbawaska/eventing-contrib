@@ -21,13 +21,13 @@ package fake
 import (
 	context "context"
 
-	githubbinding "knative.dev/eventing-contrib/github/pkg/client/injection/informers/bindings/v1alpha1/githubbinding"
-	fake "knative.dev/eventing-contrib/github/pkg/client/injection/informers/factory/fake"
+	registrybinding "knative.dev/eventing-contrib/registry/pkg/client/injection/informers/bindings/v1alpha1/registrybinding"
+	fake "knative.dev/eventing-contrib/registry/pkg/client/injection/informers/factory/fake"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 )
 
-var Get = githubbinding.Get
+var Get = registrybinding.Get
 
 func init() {
 	injection.Fake.RegisterInformer(withInformer)
@@ -35,6 +35,6 @@ func init() {
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := fake.Get(ctx)
-	inf := f.Bindings().V1alpha1().GitHubBindings()
-	return context.WithValue(ctx, githubbinding.Key{}, inf), inf.Informer()
+	inf := f.Bindings().V1alpha1().RegistryBindings()
+	return context.WithValue(ctx, registrybinding.Key{}, inf), inf.Informer()
 }

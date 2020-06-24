@@ -19,7 +19,7 @@ metadata:
     contrib.eventing.knative.dev/release: devel
     duck.knative.dev/binding: "true"
     knative.dev/crd-install: "true"
-  name: githubbindings.bindings.knative.dev
+  name: registrybindings.bindings.knative.dev
 spec:
   group: bindings.knative.dev
   names:
@@ -28,8 +28,8 @@ spec:
     - knative
     - eventing
     - bindings
-    kind: GitHubBinding
-    plural: githubbindings
+    kind: RegistryBinding
+    plural: registrybindings
   scope: Namespaced
   subresources:
     status: {}

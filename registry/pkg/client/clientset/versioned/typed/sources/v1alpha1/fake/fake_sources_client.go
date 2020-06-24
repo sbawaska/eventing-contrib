@@ -21,15 +21,15 @@ package fake
 import (
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-	v1alpha1 "knative.dev/eventing-contrib/github/pkg/client/clientset/versioned/typed/sources/v1alpha1"
+	v1alpha1 "knative.dev/eventing-contrib/registry/pkg/client/clientset/versioned/typed/sources/v1alpha1"
 )
 
 type FakeSourcesV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeSourcesV1alpha1) GitHubSources(namespace string) v1alpha1.GitHubSourceInterface {
-	return &FakeGitHubSources{c, namespace}
+func (c *FakeSourcesV1alpha1) RegistrySources(namespace string) v1alpha1.RegistrySourceInterface {
+	return &FakeRegistrySources{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

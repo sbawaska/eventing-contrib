@@ -19,7 +19,7 @@ package binding
 import (
 	"context"
 
-	ghbinformer "knative.dev/eventing-contrib/github/pkg/client/injection/informers/bindings/v1alpha1/githubbinding"
+	registrybinformer "knative.dev/eventing-contrib/registry/pkg/client/injection/informers/bindings/v1alpha1/registrybinding"
 	"knative.dev/pkg/client/injection/ducks/duck/v1/podspecable"
 	"knative.dev/pkg/client/injection/kube/informers/core/v1/namespace"
 
@@ -28,7 +28,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
-	"knative.dev/eventing-contrib/github/pkg/apis/bindings/v1alpha1"
+	"knative.dev/eventing-contrib/registry/pkg/apis/bindings/v1alpha1"
 	"knative.dev/pkg/apis/duck"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -49,7 +49,7 @@ func NewController(
 ) *controller.Impl {
 	logger := logging.FromContext(ctx)
 
-	ghbInformer := ghbinformer.Get(ctx)
+	regInformer := registrybinformer.Get(ctx)
 	dc := dynamicclient.Get(ctx)
 	psInformerFactory := podspecable.Get(ctx)
 	namespaceInformer := namespace.Get(ctx)
@@ -57,7 +57,7 @@ func NewController(
 	c := &psbinding.BaseReconciler{
 		GVR: v1alpha1.SchemeGroupVersion.WithResource("registrybindings"),
 		Get: func(namespace string, name string) (psbinding.Bindable, error) {
-			return ghbInformer.Lister().GitHubBindings(namespace).Get(name)
+			return regInformer.Lister().RegistryBindings(namespace).Get(name)
 		},
 		DynamicClient: dc,
 		Recorder: record.NewBroadcaster().NewRecorder(
@@ -68,7 +68,7 @@ func NewController(
 
 	logger.Info("Setting up event handlers")
 
-	ghbInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
+	regInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 	namespaceInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	c.Tracker = tracker.New(impl.EnqueueKey, controller.GetTrackerLease(ctx))
@@ -83,7 +83,7 @@ func NewController(
 }
 
 func ListAll(ctx context.Context, handler cache.ResourceEventHandler) psbinding.ListAll {
-	fbInformer := ghbinformer.Get(ctx)
+	fbInformer := registrybinformer.Get(ctx)
 
 	// Whenever a RegistryBinding changes our webhook programming might change.
 	fbInformer.Informer().AddEventHandler(handler)

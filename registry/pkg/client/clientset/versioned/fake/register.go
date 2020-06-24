@@ -24,8 +24,8 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	bindingsv1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/bindings/v1alpha1"
-	sourcesv1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
+	bindingsv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/bindings/v1alpha1"
+	sourcesv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
 )
 
 var scheme = runtime.NewScheme()

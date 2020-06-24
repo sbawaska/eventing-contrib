@@ -3,6 +3,7 @@ module knative.dev/eventing-contrib
 go 1.14
 
 require (
+	github.com/Azure/go-autorest v12.2.0+incompatible
 	github.com/Shopify/sarama v1.26.4
 	github.com/apache/camel-k v0.0.0-20200430164844-778ae8a2bd63
 	github.com/aws/aws-sdk-go v1.30.16
@@ -16,6 +17,7 @@ require (
 	github.com/go-kivik/kivikmock/v3 v3.0.0
 	github.com/golang/protobuf v1.4.0
 	github.com/google/go-cmp v0.4.1
+	github.com/google/go-containerregistry v0.0.0-20200331213917-3d03ed9b1ca2
 	github.com/google/go-github/v31 v31.0.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.1

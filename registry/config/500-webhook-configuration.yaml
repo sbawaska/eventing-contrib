@@ -15,7 +15,7 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: defaulting.webhook.github.sources.knative.dev
+  name: defaulting.webhook.registry.sources.knative.dev
   labels:
     contrib.eventing.knative.dev/release: devel
 webhooks:
@@ -23,15 +23,15 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: github-webhook
+      name: registry-webhook
       namespace: knative-sources
   failurePolicy: Fail
-  name: defaulting.webhook.github.sources.knative.dev
+  name: defaulting.webhook.registry.sources.knative.dev
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: validation.webhook.github.sources.knative.dev
+  name: validation.webhook.registry.sources.knative.dev
   labels:
     contrib.eventing.knative.dev/release: devel
 webhooks:
@@ -39,15 +39,15 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: github-webhook
+      name: registry-webhook
       namespace: knative-sources
   failurePolicy: Fail
-  name: validation.webhook.github.sources.knative.dev
+  name: validation.webhook.registry.sources.knative.dev
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: githubbindings.webhook.github.sources.knative.dev
+  name: registrybindings.webhook.registry.sources.knative.dev
   labels:
     samples.knative.dev/release: devel
 webhooks:
@@ -55,15 +55,15 @@ webhooks:
   - v1beta1
   clientConfig:
     service:
-      name: github-webhook
+      name: registry-webhook
       namespace: knative-sources
   failurePolicy: Fail
-  name: githubbindings.webhook.github.sources.knative.dev
+  name: registrybindings.webhook.registry.sources.knative.dev
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: github-webhook-certs
+  name: registry-webhook-certs
   namespace: knative-sources
   labels:
     contrib.eventing.knative.dev/release: devel

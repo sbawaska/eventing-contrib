@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	internalinterfaces "knative.dev/eventing-contrib/github/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "knative.dev/eventing-contrib/registry/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// GitHubSources returns a GitHubSourceInformer.
-	GitHubSources() GitHubSourceInformer
+	// RegistrySources returns a RegistrySourceInformer.
+	RegistrySources() RegistrySourceInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// GitHubSources returns a GitHubSourceInformer.
-func (v *version) GitHubSources() GitHubSourceInformer {
-	return &gitHubSourceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// RegistrySources returns a RegistrySourceInformer.
+func (v *version) RegistrySources() RegistrySourceInformer {
+	return &registrySourceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

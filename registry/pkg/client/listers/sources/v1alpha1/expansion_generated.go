@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// GitHubSourceListerExpansion allows custom methods to be added to
-// GitHubSourceLister.
-type GitHubSourceListerExpansion interface{}
+// RegistrySourceListerExpansion allows custom methods to be added to
+// RegistrySourceLister.
+type RegistrySourceListerExpansion interface{}
 
-// GitHubSourceNamespaceListerExpansion allows custom methods to be added to
-// GitHubSourceNamespaceLister.
-type GitHubSourceNamespaceListerExpansion interface{}
+// RegistrySourceNamespaceListerExpansion allows custom methods to be added to
+// RegistrySourceNamespaceLister.
+type RegistrySourceNamespaceListerExpansion interface{}

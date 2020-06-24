@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 import (
-	github "knative.dev/eventing-contrib/github/pkg/reconciler/source"
+	registry "knative.dev/eventing-contrib/registry/pkg/reconciler/source"
 	"knative.dev/pkg/injection/sharedmain"
 )
 
@@ -26,5 +26,5 @@ const (
 )
 
 func main() {
-	sharedmain.Main(component, github.NewController)
+	sharedmain.Main(component, registry.NewController)
 }

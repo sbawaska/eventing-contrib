@@ -23,8 +23,8 @@ import (
 
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
-	v1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/bindings/v1alpha1"
-	sourcesv1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
+	v1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/bindings/v1alpha1"
+	sourcesv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
 )
 
 // GenericInformer is type of SharedIndexInformer which will locate and delegate to other
@@ -54,12 +54,12 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=bindings.knative.dev, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("githubbindings"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Bindings().V1alpha1().GitHubBindings().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("registrybindings"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Bindings().V1alpha1().RegistryBindings().Informer()}, nil
 
 		// Group=sources.knative.dev, Version=v1alpha1
-	case sourcesv1alpha1.SchemeGroupVersion.WithResource("githubsources"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Sources().V1alpha1().GitHubSources().Informer()}, nil
+	case sourcesv1alpha1.SchemeGroupVersion.WithResource("registrysources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Sources().V1alpha1().RegistrySources().Informer()}, nil
 
 	}
 

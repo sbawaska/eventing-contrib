@@ -20,9 +20,9 @@ import (
 	"os"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	bindingv1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/bindings/v1alpha1"
-	sourcev1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
-	"knative.dev/eventing-contrib/github/pkg/reconciler/binding"
+	bindingv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/bindings/v1alpha1"
+	sourcev1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
+	"knative.dev/eventing-contrib/registry/pkg/reconciler/binding"
 	"knative.dev/eventing/pkg/logconfig"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -38,8 +38,8 @@ import (
 )
 
 var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{
-	sourcev1alpha1.SchemeGroupVersion.WithKind("RegistrySource"):   &sourcev1alpha1.GitHubSource{},
-	bindingv1alpha1.SchemeGroupVersion.WithKind("RegistryBinding"): &bindingv1alpha1.GitHubBinding{},
+	sourcev1alpha1.SchemeGroupVersion.WithKind("RegistrySource"):   &sourcev1alpha1.RegistrySource{},
+	bindingv1alpha1.SchemeGroupVersion.WithKind("RegistryBinding"): &bindingv1alpha1.RegistryBinding{},
 }
 
 var callbacks = map[schema.GroupVersionKind]validation.Callback{}
@@ -47,7 +47,7 @@ var callbacks = map[schema.GroupVersionKind]validation.Callback{}
 func NewDefaultingAdmissionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	return defaulting.NewAdmissionController(ctx,
 		// Name of the resource webhook.
-		"defaulting.webhook.github.sources.knative.dev",
+		"defaulting.webhook.registry.sources.knative.dev",
 
 		// The path on which to serve the webhook.
 		"/defaulting",
@@ -68,7 +68,7 @@ func NewDefaultingAdmissionController(ctx context.Context, cmw configmap.Watcher
 func NewValidationAdmissionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	return validation.NewAdmissionController(ctx,
 		// Name of the resource webhook.
-		"validation.webhook.github.sources.knative.dev",
+		"validation.webhook.registry.sources.knative.dev",
 
 		// The path on which to serve the webhook.
 		"/validation",
@@ -89,15 +89,15 @@ func NewValidationAdmissionController(ctx context.Context, cmw configmap.Watcher
 	)
 }
 
-func NewGitHubBindingWebhook(opts ...psbinding.ReconcilerOption) injection.ControllerConstructor {
+func NewRegistryBindingWebhook(opts ...psbinding.ReconcilerOption) injection.ControllerConstructor {
 	return func(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 		return psbinding.NewAdmissionController(ctx,
 
 			// Name of the resource webhook.
-			"githubbindings.webhook.github.sources.knative.dev",
+			"registrybindings.webhook.registry.sources.knative.dev",
 
 			// The path on which to serve the webhook.
-			"/githubbindings",
+			"/registrybindings",
 
 			// How to get all the Bindables for configuring the mutating webhook.
 			binding.ListAll,
@@ -118,11 +118,11 @@ func main() {
 	ctx := webhook.WithOptions(signals.NewContext(), webhook.Options{
 		ServiceName: logconfig.WebhookName(),
 		Port:        8443,
-		SecretName:  "github-webhook-certs",
+		SecretName:  "registry-webhook-certs",
 	})
 
 	ghbSelector := psbinding.WithSelector(psbinding.ExclusionSelector)
-	if os.Getenv("GITHUB_BINDING_SELECTION_MODE") == "inclusion" {
+	if os.Getenv("REGISTRY_BINDING_SELECTION_MODE") == "inclusion" {
 		ghbSelector = psbinding.WithSelector(psbinding.InclusionSelector)
 	}
 
@@ -132,6 +132,6 @@ func main() {
 		NewValidationAdmissionController,
 
 		// For each binding we have a controller and a binding webhook.
-		binding.NewController, NewGitHubBindingWebhook(ghbSelector),
+		binding.NewController, NewRegistryBindingWebhook(ghbSelector),
 	)
 }

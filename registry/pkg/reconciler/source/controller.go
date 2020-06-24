@@ -25,14 +25,14 @@ import (
 	"k8s.io/client-go/tools/cache"
 
 	//Injection imports
-	sourcescheme "knative.dev/eventing-contrib/github/pkg/client/clientset/versioned/scheme"
-	githubinformer "knative.dev/eventing-contrib/github/pkg/client/injection/informers/sources/v1alpha1/githubsource"
-	ghreconciler "knative.dev/eventing-contrib/github/pkg/client/injection/reconciler/sources/v1alpha1/githubsource"
+	sourcescheme "knative.dev/eventing-contrib/registry/pkg/client/clientset/versioned/scheme"
+	registryinformer "knative.dev/eventing-contrib/registry/pkg/client/injection/informers/sources/v1alpha1/registrysource"
+	registryreconciler "knative.dev/eventing-contrib/registry/pkg/client/injection/reconciler/sources/v1alpha1/registrysource"
 	serviceclient "knative.dev/serving/pkg/client/injection/client"
 	kserviceinformer "knative.dev/serving/pkg/client/injection/informers/serving/v1/service"
 
 	//knative.dev/eventing imports
-	"knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
+	"knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
 
 	//knative.dev/pkg imports
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
@@ -53,24 +53,23 @@ func NewController(
 		return nil
 	}
 
-	githubInformer := githubinformer.Get(ctx)
+	registryInformer := registryinformer.Get(ctx)
 	serviceInformer := kserviceinformer.Get(ctx)
 
 	r := &Reconciler{
 		kubeClientSet:       kubeclient.Get(ctx),
 		servingLister:       serviceInformer.Lister(),
 		servingClientSet:    serviceclient.Get(ctx),
-		webhookClient:       gitHubWebhookClient{},
 		receiveAdapterImage: raImage,
 	}
 
-	impl := ghreconciler.NewImpl(ctx, r)
+	impl := registryreconciler.NewImpl(ctx, r)
 
 	r.sinkResolver = resolver.NewURIResolver(ctx, impl.EnqueueKey)
 
-	logging.FromContext(ctx).Info("Setting up GitHub event handlers")
+	logging.FromContext(ctx).Info("Setting up registry event handlers")
 
-	githubInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
+	registryInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	serviceInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
 		FilterFunc: controller.FilterControllerGK(v1alpha1.Kind("RegistrySource")),

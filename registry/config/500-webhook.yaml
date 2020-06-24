@@ -15,7 +15,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: github-webhook
+  name: registry-webhook
   namespace: knative-sources
   labels:
     contrib.eventing.knative.dev/release: devel
@@ -23,19 +23,19 @@ spec:
   replicas: 1
   selector:
     matchLabels: &labels
-      app: github-webhook
-      role: github-webhook
+      app: registry-webhook
+      role: registry-webhook
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
       labels: *labels
     spec:
-      serviceAccountName: github-webhook
+      serviceAccountName: registry-webhook
       containers:
-      - name: github-webhook
+      - name: registry-webhook
         terminationMessagePolicy: FallbackToLogsOnError
-        image: ko://knative.dev/eventing-contrib/github/cmd/webhook
+        image: ko://knative.dev/eventing-contrib/registry/cmd/webhook
         env:
           - name: SYSTEM_NAMESPACE
             valueFrom:
@@ -46,7 +46,7 @@ spec:
           - name: METRICS_DOMAIN
             value: knative.dev/eventing
           - name: WEBHOOK_NAME
-            value: github-webhook
+            value: registry-webhook
         ports:
           - containerPort: 9090
             name: metrics
@@ -68,8 +68,8 @@ kind: Service
 metadata:
   labels:
     eventing.knative.dev/release: devel
-    role: github-webhook
-  name: github-webhook
+    role: registry-webhook
+  name: registry-webhook
   namespace: knative-sources
 spec:
   ports:
@@ -77,4 +77,4 @@ spec:
       port: 443
       targetPort: 8443
   selector:
-    role: github-webhook
+    role: registry-webhook

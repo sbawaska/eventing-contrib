@@ -86,7 +86,7 @@ var testCases = []testCase{
 		}(),
 		eventID:               eventID,
 		eventType:             "commit_comment",
-		wantCloudEventType:    "dev.knative.source.github.commit_comment",
+		wantCloudEventType:    "dev.knative.registry.github.commit_comment",
 		wantCloudEventSubject: testSubject,
 	}, {
 		name: "valid create",
@@ -320,7 +320,7 @@ var testCases = []testCase{
 		eventID:               eventID,
 		eventType:             "public",
 		wantCloudEventSubject: testSubject,
-		wantCloudEventType:    "dev.knative.source.github.public",
+		wantCloudEventType:    "dev.knative.registry.github.public",
 	}, {
 		name: "valid pull_request",
 		payload: func() interface{} {
@@ -331,7 +331,7 @@ var testCases = []testCase{
 		}(),
 		eventID:               eventID,
 		eventType:             "pull_request",
-		wantCloudEventType:    "dev.knative.source.github.pull_request",
+		wantCloudEventType:    "dev.knative.registry.github.pull_request",
 		wantCloudEventSubject: testSubject,
 	}, {
 		name: "valid pull_request_review",

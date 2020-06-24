@@ -25,5 +25,10 @@ func (g *RegistrySource) SetDefaults(ctx context.Context) {
 }
 
 func (gs *RegistrySourceSpec) SetDefaults(ctx context.Context) {
-	// Nothing yet.
+	if gs.PollInterval == "" {
+		gs.PollInterval = "10"
+	}
+	if gs.RegistryBaseURL == "" {
+		gs.RegistryBaseURL = "docker.io"
+	}
 }

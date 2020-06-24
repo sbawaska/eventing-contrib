@@ -20,13 +20,13 @@ package v1alpha1
 
 import (
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/sources/v1alpha1"
-	"knative.dev/eventing-contrib/github/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
+	"knative.dev/eventing-contrib/registry/pkg/client/clientset/versioned/scheme"
 )
 
 type SourcesV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	GitHubSourcesGetter
+	RegistrySourcesGetter
 }
 
 // SourcesV1alpha1Client is used to interact with features provided by the sources.knative.dev group.
@@ -34,8 +34,8 @@ type SourcesV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *SourcesV1alpha1Client) GitHubSources(namespace string) GitHubSourceInterface {
-	return newGitHubSources(c, namespace)
+func (c *SourcesV1alpha1Client) RegistrySources(namespace string) RegistrySourceInterface {
+	return newRegistrySources(c, namespace)
 }
 
 // NewForConfig creates a new SourcesV1alpha1Client for the given config.

@@ -15,7 +15,7 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  name: githubsources.sources.knative.dev
+  name: registrysources.sources.knative.dev
   labels:
     contrib.eventing.knative.dev/release: devel
     eventing.knative.dev/source: "true"
@@ -25,40 +25,9 @@ metadata:
     # TODO add schemas and descriptions
     registry.knative.dev/eventTypes: |
       [
-        { "type": "dev.knative.source.github.check_suite" },
-        { "type": "dev.knative.source.github.commit_comment" },
-        { "type": "dev.knative.source.github.create" },
-        { "type": "dev.knative.source.github.delete" },
-        { "type": "dev.knative.source.github.deployment" },
-        { "type": "dev.knative.source.github.deployment_status" },
-        { "type": "dev.knative.source.github.fork" },
-        { "type": "dev.knative.source.github.gollum" },
-        { "type": "dev.knative.source.github.installation" },
-        { "type": "dev.knative.source.github.integration_installation" },
-        { "type": "dev.knative.source.github.issue_comment" },
-        { "type": "dev.knative.source.github.issues" },
-        { "type": "dev.knative.source.github.label" },
-        { "type": "dev.knative.source.github.member" },
-        { "type": "dev.knative.source.github.membership" },
-        { "type": "dev.knative.source.github.milestone" },
-        { "type": "dev.knative.source.github.organization" },
-        { "type": "dev.knative.source.github.org_block" },
-        { "type": "dev.knative.source.github.page_build" },
-        { "type": "dev.knative.source.github.ping" },
-        { "type": "dev.knative.source.github.project_card" },
-        { "type": "dev.knative.source.github.project_column" },
-        { "type": "dev.knative.source.github.project" },
-        { "type": "dev.knative.source.github.public" },
-        { "type": "dev.knative.source.github.pull_request" },
-        { "type": "dev.knative.source.github.pull_request_review" },
-        { "type": "dev.knative.source.github.pull_request_review_comment" },
-        { "type": "dev.knative.source.github.push" },
-        { "type": "dev.knative.source.github.release" },
-        { "type": "dev.knative.source.github.repository" },
-        { "type": "dev.knative.source.github.status" },
-        { "type": "dev.knative.source.github.team" },
-        { "type": "dev.knative.source.github.team_add" },
-        { "type": "dev.knative.source.github.watch" }
+        { "type": "dev.knative.source.registry.create" },
+        { "type": "dev.knative.source.registry.update" },
+      { "type": "dev.knative.source.registry.delete" }
       ]
 spec:
   group: sources.knative.dev
@@ -68,8 +37,8 @@ spec:
     - knative
     - eventing
     - sources
-    kind: GitHubSource
-    plural: githubsources
+    kind: RegistrySource
+    plural: registrysources
   scope: Namespaced
   subresources:
     status: {}
@@ -91,59 +60,18 @@ spec:
       properties:
         spec:
           properties:
-            accessToken:
-              properties:
-                secretKeyRef:
-                  type: object
-              type: object
             eventTypes:
               items:
                 enum:
-                - check_suite
-                - commit_comment
                 - create
                 - delete
-                - deployment
-                - deployment_status
-                - fork
-                - gollum
-                - installation
-                - integration_installation
-                - issue_comment
-                - issues
-                - label
-                - member
-                - membership
-                - milestone
-                - organization
-                - org_block
-                - page_build
-                - ping
-                - project_card
-                - project_column
-                - project
-                - public
-                - pull_request
-                - pull_request_review
-                - pull_request_review_comment
-                - push
-                - release
-                - repository
-                - status
-                - team
-                - team_add
-                - watch
+                - update
                 type: string
               minItems: 1
               type: array
             ownerAndRepository:
               minLength: 1
               type: string
-            secretToken:
-              properties:
-                secretKeyRef:
-                  type: object
-              type: object
             serviceAccountName:
               type: string
             sink:
@@ -192,9 +120,6 @@ spec:
                     description: "the target URI. If ref is provided, this must be relative URI reference."
           required:
           - ownerAndRepository
-          - eventTypes
-          - accessToken
-          - secretToken
           type: object
         status:
           properties:

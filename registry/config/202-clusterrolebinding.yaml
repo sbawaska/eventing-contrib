@@ -15,46 +15,46 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: eventing-sources-github-controller
+  name: eventing-sources-registry-controller
   labels:
     contrib.eventing.knative.dev/release: devel
 subjects:
 - kind: ServiceAccount
-  name: github-controller-manager
+  name: registry-controller-manager
   namespace: knative-sources
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: eventing-sources-github-controller
+  name: eventing-sources-registry-controller
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: eventing-sources-github-webhook
+  name: eventing-sources-registry-webhook
   labels:
     contrib.eventing.knative.dev/release: devel
 subjects:
   - kind: ServiceAccount
-    name: github-webhook
+    name: registry-webhook
     namespace: knative-sources
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: github-webhook
+  name: registry-webhook
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: eventing-sources-github-podspecable-binding
+  name: eventing-sources-registry-podspecable-binding
   labels:
     contrib.eventing.knative.dev/release: devel
 subjects:
   - kind: ServiceAccount
-    name: github-webhook
+    name: registry-webhook
     namespace: knative-sources
 roleRef:
   kind: ClusterRole
@@ -66,12 +66,12 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: eventing-sources-github-addressable-resolver
+  name: eventing-sources-registry-addressable-resolver
   labels:
     contrib.eventing.knative.dev/release: devel
 subjects:
 - kind: ServiceAccount
-  name: github-controller-manager
+  name: registry-controller-manager
   namespace: knative-sources
 # An aggregated ClusterRole for all Addressable CRDs. 
 # Ref: https://github.com/knative/eventing/tree/master/config/core/rolesaddressable-resolvers-clusterrole.yaml

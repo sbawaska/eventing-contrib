@@ -21,8 +21,8 @@ package sourcesfactory
 import (
 	"context"
 
-	externalversions "knative.dev/eventing-contrib/github/pkg/client/informers/externalversions"
-	client "knative.dev/eventing-contrib/github/pkg/client/injection/client"
+	externalversions "knative.dev/eventing-contrib/registry/pkg/client/informers/externalversions"
+	client "knative.dev/eventing-contrib/registry/pkg/client/injection/client"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"

@@ -19,9 +19,9 @@ package main
 import (
 	"knative.dev/eventing/pkg/adapter/v2"
 
-	githubadapter "knative.dev/eventing-contrib/github/pkg/adapter"
+	registryadapter "knative.dev/eventing-contrib/registry/pkg/adapter"
 )
 
 func main() {
-	adapter.Main("registrysource", githubadapter.NewEnvConfig, githubadapter.NewAdapter)
+	adapter.Main("registrysource", registryadapter.NewEnvConfig, registryadapter.NewAdapter)
 }

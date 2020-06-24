@@ -15,7 +15,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: github-webhook
+  name: registry-webhook
   labels:
     contrib.eventing.knative.dev/release: devel
 rules:
@@ -23,7 +23,7 @@ rules:
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources
+  - registrysources
   verbs: &everything
   - get
   - list
@@ -37,14 +37,14 @@ rules:
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources/finalizers
+  - registrysources/finalizers
   verbs: *everything
 
 # Source statuses update
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources/status
+  - registrysources/status
   verbs:
   - get
   - update
@@ -125,7 +125,7 @@ rules:
 - apiGroups:
   - bindings.knative.dev
   resources:
-  - githubbindings
+  - registrybindings
   verbs: &everything
   - get
   - list
@@ -139,14 +139,14 @@ rules:
 - apiGroups:
   - bindings.knative.dev
   resources:
-  - githubbindings/finalizers
+  - registrybindings/finalizers
   verbs: *everything
 
 # Source statuses update
 - apiGroups:
   - bindings.knative.dev
   resources:
-  - githubbindings/status
+  - registrybindings/status
   verbs:
   - get
   - update

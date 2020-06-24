@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"knative.dev/eventing-contrib/github/pkg/apis/bindings"
+	"knative.dev/eventing-contrib/registry/pkg/apis/bindings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

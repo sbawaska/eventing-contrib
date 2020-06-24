@@ -20,7 +20,7 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"knative.dev/eventing-contrib/github"
+	"knative.dev/eventing-contrib/registry"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/apis/duck"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
@@ -81,18 +81,18 @@ func (sb *RegistryBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 func (sb *RegistryBinding) Undo(ctx context.Context, ps *duckv1.WithPod) {
 	spec := ps.Spec.Template.Spec
 
-	// Make sure the PodSpec does NOT have the github volume.
+	// Make sure the PodSpec does NOT have the volume.
 	for i, v := range spec.Volumes {
-		if v.Name == github.VolumeName {
+		if v.Name == registry.VolumeName {
 			ps.Spec.Template.Spec.Volumes = append(spec.Volumes[:i], spec.Volumes[i+1:]...)
 			break
 		}
 	}
 
-	// Make sure that none of the [init]containers have the github volume mount
+	// Make sure that none of the [init]containers have the volume mount
 	for i, c := range spec.InitContainers {
 		for j, vm := range c.VolumeMounts {
-			if vm.Name == github.VolumeName {
+			if vm.Name == registry.VolumeName {
 				spec.InitContainers[i].VolumeMounts = append(c.VolumeMounts[:j], c.VolumeMounts[j+1:]...)
 				break
 			}
@@ -101,7 +101,7 @@ func (sb *RegistryBinding) Undo(ctx context.Context, ps *duckv1.WithPod) {
 
 	for i, c := range spec.Containers {
 		for j, vm := range c.VolumeMounts {
-			if vm.Name == github.VolumeName {
+			if vm.Name == registry.VolumeName {
 				spec.Containers[i].VolumeMounts = append(c.VolumeMounts[:j], c.VolumeMounts[j+1:]...)
 				break
 			}

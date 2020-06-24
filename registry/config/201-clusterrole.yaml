@@ -15,7 +15,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: eventing-sources-github-controller
+  name: eventing-sources-registry-controller
   labels:
     contrib.eventing.knative.dev/release: devel
 rules:
@@ -23,7 +23,7 @@ rules:
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources
+  - registrysources
   verbs: &everything
   - get
   - list
@@ -37,14 +37,14 @@ rules:
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources/finalizers
+  - registrysources/finalizers
   verbs: *everything
 
 # Source statuses update
 - apiGroups:
   - sources.knative.dev
   resources:
-  - githubsources/status
+  - registrysources/status
   verbs:
   - get
   - update
@@ -95,7 +95,7 @@ rules:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: eventing-contrib-github-source-observer
+  name: eventing-contrib-registry-source-observer
   labels:
     eventing.knative.dev/release: devel
     duck.knative.dev/source: "true"
@@ -103,7 +103,7 @@ rules:
   - apiGroups:
       - "sources.knative.dev"
     resources:
-      - "githubsources"
+      - "registrysources"
     verbs:
       - get
       - list

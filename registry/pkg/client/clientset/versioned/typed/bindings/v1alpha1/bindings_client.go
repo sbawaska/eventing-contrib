@@ -20,13 +20,13 @@ package v1alpha1
 
 import (
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "knative.dev/eventing-contrib/github/pkg/apis/bindings/v1alpha1"
-	"knative.dev/eventing-contrib/github/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/bindings/v1alpha1"
+	"knative.dev/eventing-contrib/registry/pkg/client/clientset/versioned/scheme"
 )
 
 type BindingsV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	GitHubBindingsGetter
+	RegistryBindingsGetter
 }
 
 // BindingsV1alpha1Client is used to interact with features provided by the bindings.knative.dev group.
@@ -34,8 +34,8 @@ type BindingsV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *BindingsV1alpha1Client) GitHubBindings(namespace string) GitHubBindingInterface {
-	return newGitHubBindings(c, namespace)
+func (c *BindingsV1alpha1Client) RegistryBindings(namespace string) RegistryBindingInterface {
+	return newRegistryBindings(c, namespace)
 }
 
 // NewForConfig creates a new BindingsV1alpha1Client for the given config.

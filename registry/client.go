@@ -14,21 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package github
+package registry
 
 import (
-	"context"
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/google/go-github/v31/github"
-	"golang.org/x/oauth2"
 )
 
 const (
 	AccessTokenKey = "accessToken"
-	VolumeName     = "github-binding"
-	MountPath      = "/var/bindings/github"
+	VolumeName     = "registry-binding"
+	MountPath      = "/var/bindings/registry"
 )
 
 // ReadKey may be used to read keys from the secret bound by the GitHubBinding.
@@ -40,24 +37,7 @@ func ReadKey(key string) (string, error) {
 	return string(data), nil
 }
 
-// AccessToken reads the file named accessToken that is mounted by the GitHubBinding.
+// AccessToken reads the file named accessToken that is mounted by the registryBinding.
 func AccessToken() (string, error) {
 	return ReadKey(AccessTokenKey)
-}
-
-// New instantiates a new github client from the access token from the GitHubBinding
-func New(ctx context.Context) (*github.Client, error) {
-	at, err := AccessToken()
-	if err != nil {
-		return nil, err
-	}
-	return github.NewClient(
-		oauth2.NewClient(ctx,
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: at,
-				},
-			),
-		),
-	), nil
 }

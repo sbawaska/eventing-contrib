@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// GitHubBindingListerExpansion allows custom methods to be added to
-// GitHubBindingLister.
-type GitHubBindingListerExpansion interface{}
+// RegistryBindingListerExpansion allows custom methods to be added to
+// RegistryBindingLister.
+type RegistryBindingListerExpansion interface{}
 
-// GitHubBindingNamespaceListerExpansion allows custom methods to be added to
-// GitHubBindingNamespaceLister.
-type GitHubBindingNamespaceListerExpansion interface{}
+// RegistryBindingNamespaceListerExpansion allows custom methods to be added to
+// RegistryBindingNamespaceLister.
+type RegistryBindingNamespaceListerExpansion interface{}

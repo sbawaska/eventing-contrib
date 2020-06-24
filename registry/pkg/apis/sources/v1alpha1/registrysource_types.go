@@ -52,8 +52,14 @@ type RegistrySourceSpec struct {
 	// +kubebuilder:validation:MinLength=1
 	OwnerAndRepository string `json:"ownerAndRepository"`
 
+	// Base url of the registry i.e. gcr.io, docker.io etc
+	// Defaults to docker.io
+	RegistryBaseURL string `json:"registryBaseUrl,omitempty"`
+
+	// The polling interval in seconds. defaults to 10
+	PollInterval string `json:"pollInterval,omitempty"`
+
 	// EventType is the type of event to receive from registry.
-	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:Enum=create,delete,update
 	EventTypes []string `json:"eventTypes"`
 
@@ -70,8 +76,13 @@ const (
 )
 
 // RegistryEventType returns the Registry CloudEvent type value.
-func RegistryEventType(regEventType string) string {
-	return fmt.Sprintf("%s.%s", registryEventTypePrefix, regEventType)
+func RegistryEventType() string {
+	return registryEventTypePrefix
+}
+
+// RegistryEventSource returns the GitHub CloudEvent source value.
+func RegistryEventSource(registryBaseUrl, ownerAndRepo string) string {
+	return fmt.Sprintf("%s/%s", registryBaseUrl, ownerAndRepo)
 }
 
 const (
@@ -79,17 +90,9 @@ const (
 	// RegistrySource is ready to send events.
 	RegistrySourceConditionReady = apis.ConditionReady
 
-	// RegistrySourceConditionSecretsProvided has status True when the
-	// RegistrySource has valid secret references
-	RegistrySourceConditionSecretsProvided apis.ConditionType = "SecretsProvided"
-
 	// RegistrySourceConditionSinkProvided has status True when the
 	// RegistrySource has been configured with a sink target.
 	RegistrySourceConditionSinkProvided apis.ConditionType = "SinkProvided"
-
-	// RegistrySourceConditionWebhookConfigured has a status True when the
-	// RegistrySource has been configured with a webhook.
-	RegistrySourceConditionWebhookConfigured apis.ConditionType = "WebhookConfigured"
 
 	// GitHubServiceconditiondeployed has status True when then
 	// RegistrySource Service has been deployed
@@ -97,13 +100,11 @@ const (
 
 	// GitHubSourceReconciled has status True when the
 	// RegistrySource has been properly reconciled
-	GitHub
 )
 
 var registrySourceCondSet = apis.NewLivingConditionSet(
-	RegistrySourceConditionSecretsProvided,
 	RegistrySourceConditionSinkProvided,
-	RegistrySourceConditionWebhookConfigured)
+)
 
 
 // RegistrySourceStatus defines the observed state of RegistrySource
@@ -137,16 +138,6 @@ func (s *RegistrySourceStatus) InitializeConditions() {
 	registrySourceCondSet.Manage(s).InitializeConditions()
 }
 
-// MarkSecrets sets the condition that the source has a valid spec
-func (s *RegistrySourceStatus) MarkSecrets() {
-	registrySourceCondSet.Manage(s).MarkTrue(RegistrySourceConditionSecretsProvided)
-}
-
-// MarkNoSecrets sets the condition that the source does not have a valid spec
-func (s *RegistrySourceStatus) MarkNoSecrets(reason, messageFormat string, messageA ...interface{}) {
-	registrySourceCondSet.Manage(s).MarkFalse(RegistrySourceConditionSecretsProvided, reason, messageFormat, messageA...)
-}
-
 // MarkSink sets the condition that the source has a sink configured.
 func (s *RegistrySourceStatus) MarkSink(uri *apis.URL) {
 	s.SinkURI = uri
@@ -161,16 +152,6 @@ func (s *RegistrySourceStatus) MarkSink(uri *apis.URL) {
 // MarkNoSink sets the condition that the source does not have a sink configured.
 func (s *RegistrySourceStatus) MarkNoSink(reason, messageFormat string, messageA ...interface{}) {
 	registrySourceCondSet.Manage(s).MarkFalse(RegistrySourceConditionSinkProvided, reason, messageFormat, messageA...)
-}
-
-// MarkWebhookConfigured sets the condition that the source has set its webhook configured.
-func (s *RegistrySourceStatus) MarkWebhookConfigured() {
-	registrySourceCondSet.Manage(s).MarkTrue(RegistrySourceConditionWebhookConfigured)
-}
-
-// MarkWebhookNotConfigured sets the condition that the source does not have its webhook configured.
-func (s *RegistrySourceStatus) MarkWebhookNotConfigured(reason, messageFormat string, messageA ...interface{}) {
-	registrySourceCondSet.Manage(s).MarkFalse(RegistrySourceConditionWebhookConfigured, reason, messageFormat, messageA...)
 }
 
 // MarkDeployed sets the condition that the source has been deployed.

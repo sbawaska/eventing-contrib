@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	internalinterfaces "knative.dev/eventing-contrib/github/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "knative.dev/eventing-contrib/registry/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// GitHubBindings returns a GitHubBindingInformer.
-	GitHubBindings() GitHubBindingInformer
+	// RegistryBindings returns a RegistryBindingInformer.
+	RegistryBindings() RegistryBindingInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// GitHubBindings returns a GitHubBindingInformer.
-func (v *version) GitHubBindings() GitHubBindingInformer {
-	return &gitHubBindingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// RegistryBindings returns a RegistryBindingInformer.
+func (v *version) RegistryBindings() RegistryBindingInformer {
+	return &registryBindingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
