@@ -19,6 +19,7 @@ package adapter
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"strconv"
 	"strings"
 	"time"
@@ -35,14 +36,15 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
 type Event string
+
 var validEvents = []Event{
 	"created",
 	"updated",
@@ -60,6 +62,8 @@ type envConfig struct {
 	EnvPollInterval string `envconfig:"POLL_INTERVAL" default:"10"`
 	// Environment variable containing information about the origin of the event
 	EnvOwnerRepo string `envconfig:"REGISTRY_OWNER_REPO" required:"true"`
+	// Environment variable containing information about tags to filter
+	Tags *string `envconfig:"TAGS"`
 }
 
 // NewEnvConfig function reads env variables defined in envConfig structure and
@@ -169,7 +173,15 @@ func (a *registryAdapter) pollRegistry() error {
 	if err != nil {
 		return err
 	}
+	rawTags := a.env.Tags
+	var tags sets.String
+	if rawTags != nil {
+		tags = sets.NewString(strings.Split(*rawTags, ",")...)
+	}
 	for _, tag := range l {
+		if rawTags != nil && !tags.Has(tag) {
+			continue
+		}
 		tagref, err := name.ParseReference(fmt.Sprintf("%s:%s", repositoryPath, tag))
 		if err != nil {
 			return err
