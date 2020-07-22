@@ -242,18 +242,20 @@ func (a *registryAdapter) getConfigMapName() (string, error) {
 func (a *registryAdapter) sendEvent(eventType string, desc *remote.Descriptor) error {
 
 	cloudEventType := sourcesv1alpha1.RegistryEventType()
+	tag := desc.Ref.Identifier()
 
 	event := cloudevents.NewEvent()
 	event.SetType(cloudEventType)
 	event.SetSource(a.env.EnvRegistryBaseUrl)
 	event.SetSubject(a.env.EnvOwnerRepo)
 	event.SetExtension("action", eventType)
+	event.SetExtension("tag", tag)
 
 	payload := map[string]string {
 		"Action": eventType,
 		"ResourceURI": buildImageStrWithDigest(desc),
 		"Digest": desc.Digest.String(),
-		"Tag": desc.Ref.Identifier(),
+		"Tag": tag,
 	}
 
 	a.logger.Info(fmt.Sprintf("sending cloudevent %+v: with payload:%+v", event, payload))
