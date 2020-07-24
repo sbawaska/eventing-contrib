@@ -69,8 +69,15 @@ func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 	tags := args.Source.Spec.Tags
 	if tags != nil {
 		env = append(env, corev1.EnvVar{
-			Name: "TAGS",
+			Name:  "TAGS",
 			Value: strings.Join(tags, ","),
+		})
+	}
+	data := args.Source.Spec.Data
+	if data != nil {
+		env = append(env, corev1.EnvVar{
+			Name: "DATA",
+			Value: strings.Join(data, ","),
 		})
 	}
 	return &appsv1.Deployment{

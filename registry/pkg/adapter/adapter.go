@@ -64,6 +64,9 @@ type envConfig struct {
 	EnvOwnerRepo string `envconfig:"REGISTRY_OWNER_REPO" required:"true"`
 	// Environment variable containing information about tags to filter
 	Tags *string `envconfig:"TAGS"`
+	// Extra extension attributes included in every Cloud Event this source emits
+	// Example: "key1:value1,key2:value2"
+	Data string `envconfig:"DATA"`
 }
 
 // NewEnvConfig function reads env variables defined in envConfig structure and
@@ -259,6 +262,11 @@ func (a *registryAdapter) sendEvent(eventType string, desc *remote.Descriptor) e
 	event.SetType(cloudEventType)
 	event.SetSource(a.env.EnvRegistryBaseUrl)
 	event.SetSubject(a.env.EnvOwnerRepo)
+
+	extraAttributes := a.parseExtraAttributes()
+	for key, value := range extraAttributes {
+		event.SetExtension(key, value)
+	}
 	event.SetExtension("action", eventType)
 
 	payload := map[string]string {
@@ -278,6 +286,20 @@ func (a *registryAdapter) sendEvent(eventType string, desc *remote.Descriptor) e
 		return result
 	}
 	return nil
+}
+
+func (a *registryAdapter) parseExtraAttributes() map[string]string {
+	result := map[string]string{}
+	keyValuePairs := strings.Split(a.env.Data, ",")
+	for _, keyValue := range keyValuePairs {
+		elements := strings.SplitN(keyValue, ":", 2)
+		if len(elements) < 2 {
+			a.logger.Warnf("failed to parse extra attribute %q, missing colon", keyValue)
+			continue
+		}
+		result[elements[0]] = elements[1]
+	}
+	return result
 }
 
 func buildImageStrWithDigest(desc *remote.Descriptor) string {
