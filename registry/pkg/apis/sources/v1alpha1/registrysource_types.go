@@ -67,6 +67,11 @@ type RegistrySourceSpec struct {
 	// name to use as the sink.
 	// +optional
 	Sink *duckv1.Destination `json:"sink,omitempty"`
+
+	// Tags the registry source emits events for
+	// Defaults to all tags of the specified repository
+	// +optional
+	Tags []string `json:"tags,omitempty"`
 }
 
 const (

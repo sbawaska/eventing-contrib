@@ -18,6 +18,7 @@ package resources
 
 import (
 	"fmt"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -65,6 +66,13 @@ func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 		Name:  "K_LOGGING_CONFIG",
 		Value: "",
 	}}
+	tags := args.Source.Spec.Tags
+	if tags != nil {
+		env = append(env, corev1.EnvVar{
+			Name: "TAGS",
+			Value: strings.Join(tags, ","),
+		})
+	}
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: fmt.Sprintf("%s-", args.Source.Name),
