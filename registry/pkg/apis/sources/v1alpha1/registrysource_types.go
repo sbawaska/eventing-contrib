@@ -72,6 +72,10 @@ type RegistrySourceSpec struct {
 	// Defaults to all tags of the specified repository
 	// +optional
 	Tags []string `json:"tags,omitempty"`
+	// Extra attributes the registry source includes in the Cloud Events it emits
+	// Each element is a colon-separated key-value pair. E.g.: "foo:bar"
+	// +optional
+	Data []string `json:"data,omitempty"`
 }
 
 const (
