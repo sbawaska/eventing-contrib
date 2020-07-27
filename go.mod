@@ -3,7 +3,7 @@ module knative.dev/eventing-contrib
 go 1.14
 
 require (
-	github.com/Azure/go-autorest v12.2.0+incompatible
+	github.com/Azure/go-autorest v12.2.0+incompatible // indirect
 	github.com/Shopify/sarama v1.26.4
 	github.com/apache/camel-k v0.0.0-20200430164844-778ae8a2bd63
 	github.com/aws/aws-sdk-go v1.30.16
