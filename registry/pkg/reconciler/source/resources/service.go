@@ -73,13 +73,6 @@ func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 			Value: strings.Join(tags, ","),
 		})
 	}
-	data := args.Source.Spec.Data
-	if data != nil {
-		env = append(env, corev1.EnvVar{
-			Name: "DATA",
-			Value: strings.Join(data, ","),
-		})
-	}
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: fmt.Sprintf("%s-", args.Source.Name),

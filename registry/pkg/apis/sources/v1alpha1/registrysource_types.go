@@ -36,6 +36,13 @@ var _ resourcesemantics.GenericCRD = (*RegistrySource)(nil)
 // RegistrySourceSpec defines the desired state of RegistrySource
 // +kubebuilder:categories=all,knative,eventing,sources
 type RegistrySourceSpec struct {
+	// inherits duck/v1 SourceSpec, which currently provides:
+	// * Sink - a reference to an object that will resolve to a domain name or
+	//   a URI directly to use as the sink.
+	// * CloudEventOverrides - defines overrides to control the output format
+	//   and modifications of the event sent to the sink.
+	duckv1.SourceSpec `json:",inline"`
+
 	// ServiceAccountName holds the name of the Kubernetes service account
 	// as which the underlying K8s resources should be run. If unspecified
 	// this will default to the "default" service account for the namespace
@@ -63,19 +70,10 @@ type RegistrySourceSpec struct {
 	// +kubebuilder:validation:Enum=create,delete,update
 	EventTypes []string `json:"eventTypes"`
 
-	// Sink is a reference to an object that will resolve to a domain
-	// name to use as the sink.
-	// +optional
-	Sink *duckv1.Destination `json:"sink,omitempty"`
-
 	// Tags the registry source emits events for
 	// Defaults to all tags of the specified repository
 	// +optional
 	Tags []string `json:"tags,omitempty"`
-	// Extra attributes the registry source includes in the Cloud Events it emits
-	// Each element is a colon-separated key-value pair. E.g.: "foo:bar"
-	// +optional
-	Data []string `json:"data,omitempty"`
 }
 
 const (
