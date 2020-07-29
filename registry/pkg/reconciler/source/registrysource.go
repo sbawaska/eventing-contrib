@@ -93,10 +93,13 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, source *sourcesv1alpha1.
 
 	ksvc, err := r.getOwnedService(ctx, source)
 	if apierrors.IsNotFound(err) {
-		ksvc = resources.MakeDeployment(&resources.ServiceArgs{
+		ksvc, err = resources.MakeDeployment(&resources.ServiceArgs{
 			Source:              source,
 			ReceiveAdapterImage: r.receiveAdapterImage,
 		})
+		if err != nil {
+			return err
+		}
 		ksvc, err = r.kubeClientSet.AppsV1().Deployments(source.Namespace).Create(ksvc)
 		if err != nil {
 			return err

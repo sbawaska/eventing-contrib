@@ -17,6 +17,7 @@ limitations under the License.
 package resources
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -36,7 +37,7 @@ type ServiceArgs struct {
 // MakeDeployment generates, but does not create, a Service for the given
 // RegistrySource.
 //func MakeDeployment(source *sourcesv1alpha1.RegistrySource, receiveAdapterImage string) *servingv1alpha1.Service {
-func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
+func MakeDeployment(args *ServiceArgs) (*appsv1.Deployment, error) {
 	labels := map[string]string{
 		"receive-adapter": "registry",
 	}
@@ -73,6 +74,17 @@ func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 			Value: strings.Join(tags, ","),
 		})
 	}
+	ceOverrides := args.Source.Spec.CloudEventOverrides
+	if ceOverrides != nil {
+		ceOverridesJson, err := json.Marshal(ceOverrides)
+		if err != nil {
+			return nil, err
+		}
+		env = append(env, corev1.EnvVar{
+			Name:  "K_CE_OVERRIDES",
+			Value: string(ceOverridesJson),
+		})
+	}
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: fmt.Sprintf("%s-", args.Source.Name),
@@ -99,5 +111,5 @@ func MakeDeployment(args *ServiceArgs) *appsv1.Deployment {
 				},
 			},
 		},
-	}
+	}, nil
 }
