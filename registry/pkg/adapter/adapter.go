@@ -24,17 +24,13 @@ import (
 	"strings"
 	"time"
 
-	v1 "k8s.io/api/core/v1"
 	sourcesv1alpha1 "knative.dev/eventing-contrib/registry/pkg/apis/sources/v1alpha1"
-	"knative.dev/eventing-contrib/registry/pkg/reconciler/source/resources"
 	"knative.dev/eventing/pkg/adapter/v2"
 	"knative.dev/pkg/logging"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"go.uber.org/zap"
 
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
@@ -74,10 +70,11 @@ func NewEnvConfig() adapter.EnvConfigAccessor {
 
 // registryAdapter converts incoming  events to CloudEvents
 type registryAdapter struct {
-	logger       *zap.SugaredLogger
-	ceClient     cloudevents.Client
-	k8sClient    *kubernetes.Clientset
-	env          *envConfig
+	logger      *zap.SugaredLogger
+	ceClient    cloudevents.Client
+	k8sClient   *kubernetes.Clientset
+	env         *envConfig
+	digestCache map[string]string
 }
 
 // NewAdapter returns the instance of gitHubReceiveAdapter that implements adapter.Adapter interface
@@ -90,10 +87,11 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 	}
 
 	return &registryAdapter{
-		logger:       logger,
-		ceClient:     ceClient,
-		k8sClient:    k8sClient,
-		env:          env,
+		logger:      logger,
+		ceClient:    ceClient,
+		k8sClient:   k8sClient,
+		env:         env,
+		digestCache: map[string]string{},
 	}
 }
 
@@ -154,12 +152,6 @@ func (a *registryAdapter) getFullRepositoryPath() (string, error) {
 }
 
 func (a *registryAdapter) pollRegistry() error {
-
-	cm, err := a.getOrCreateConfigMap()
-	if err != nil {
-		return err
-	}
-
 	repositoryPath, err := a.getFullRepositoryPath()
 	if err != nil {
 		return err
@@ -169,86 +161,49 @@ func (a *registryAdapter) pollRegistry() error {
 	if err != nil {
 		return err
 	}
-	l, err := remote.List(repo)
+	fetchedTags, err := remote.List(repo)
 	if err != nil {
 		return err
 	}
 	rawTags := a.env.Tags
-	var tags sets.String
+	var watchedTags sets.String
 	if rawTags != nil {
-		tags = sets.NewString(strings.Split(*rawTags, ",")...)
+		watchedTags = sets.NewString(strings.Split(*rawTags, ",")...)
 	}
-	for _, tag := range l {
-		if rawTags != nil && !tags.Has(tag) {
+
+outer:
+	for cachedTag := range a.digestCache {
+		for _, tag := range fetchedTags {
+			if tag == cachedTag {
+				continue outer
+			}
+		}
+		delete(a.digestCache, cachedTag)
+	}
+
+	for _, tag := range fetchedTags {
+		if rawTags != nil && !watchedTags.Has(tag) {
 			continue
 		}
-		tagref, err := name.ParseReference(fmt.Sprintf("%s:%s", repositoryPath, tag))
+		tagRef, err := name.ParseReference(fmt.Sprintf("%s:%s", repositoryPath, tag))
 		if err != nil {
 			return err
 		}
-		desc, err := remote.Get(tagref)
+		desc, err := remote.Get(tagRef)
 		if err != nil {
 			return err
 		}
 
-		imgWithTag := strings.ReplaceAll(tagref.String(), ":", "-")
-		imgWithTag = strings.ReplaceAll(imgWithTag, "/", "-")
-
-		if digest, found := cm.Data[imgWithTag]; !found {
-			// created
-			cm.Data[imgWithTag] = desc.Digest.String()
-			err = a.sendEvent("created", desc)
-			if err != nil {
-				return err
-			}
-		} else if digest != desc.Digest.String() {
-			// updated
-			cm.Data[imgWithTag] = desc.Digest.String()
+		digest := desc.Digest.String()
+		if previousDigest, found := a.digestCache[tag]; !found || previousDigest != digest {
+			a.digestCache[tag] = digest
 			err = a.sendEvent("updated", desc)
-			if err != nil {
-				return err
-			}
 		}
-	}
-	_, err = a.k8sClient.CoreV1().ConfigMaps(a.env.Namespace).Update(cm)
-	return err
-}
-
-func (a *registryAdapter) getOrCreateConfigMap() (*v1.ConfigMap, error) {
-	cmName, err := a.getConfigMapName()
-	if err != nil {
-		return nil, err
-	}
-	cm, err := a.k8sClient.CoreV1().ConfigMaps(a.env.GetNamespace()).Get(cmName, metav1.GetOptions{})
-
-	if errors.IsNotFound(err) {
-		cm, err = a.k8sClient.CoreV1().ConfigMaps(a.env.Namespace).Create(&v1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      cmName,
-				Namespace: a.env.Namespace,
-				Labels:    resources.Labels(cmName),
-			},
-			Data: map[string]string{},
-		})
-
 		if err != nil {
-			return nil, err
+			return err
 		}
-	} else if err != nil {
-		return nil, err
 	}
-
-	return cm, nil
-
-}
-
-func (a *registryAdapter) getConfigMapName() (string, error) {
-	repoPath, err := a.getFullRepositoryPath()
-	if err != nil {
-		return "", err
-	}
-	repoName := strings.ReplaceAll(repoPath, "/", "-")
-	return fmt.Sprintf("registrysource-%s", repoName), nil
+	return err
 }
 
 func (a *registryAdapter) sendEvent(eventType string, desc *remote.Descriptor) error {
