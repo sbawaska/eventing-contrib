@@ -51,11 +51,9 @@ type RegistrySourceSpec struct {
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 
 	// OwnerAndRepository is the registry owner/org and repository to
-	// receive events from. The repository may be left off to receive
-	// events from an entire organization.
+	// receive events from.
 	// Examples:
 	//  myuser/myimage
-	//  myorganization
 	// +kubebuilder:validation:MinLength=1
 	OwnerAndRepository string `json:"ownerAndRepository"`
 
