@@ -228,7 +228,7 @@ func (a *registryAdapter) getOrCreateConfigMap() (*v1.ConfigMap, error) {
 				Namespace: a.env.Namespace,
 				Labels:    resources.Labels(cmName),
 			},
-			Data: map[string]string{"hello":"world"},
+			Data: map[string]string{},
 		})
 
 		if err != nil {
