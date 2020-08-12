@@ -34,9 +34,8 @@ type ServiceArgs struct {
 	Source              *sourcesv1alpha1.RegistrySource
 }
 
-// MakeDeployment generates, but does not create, a Service for the given
+// MakeDeployment generates, but does not create, a Deployment for the given
 // RegistrySource.
-//func MakeDeployment(source *sourcesv1alpha1.RegistrySource, receiveAdapterImage string) *servingv1alpha1.Service {
 func MakeDeployment(args *ServiceArgs) (*appsv1.Deployment, error) {
 	labels := map[string]string{
 		"receive-adapter": "registry",
@@ -103,6 +102,7 @@ func MakeDeployment(args *ServiceArgs) (*appsv1.Deployment, error) {
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
+					ServiceAccountName: args.Source.Spec.ServiceAccountName,
 					Containers: []corev1.Container{{
 						Name: "registry-poller",
 						Image: args.ReceiveAdapterImage,
