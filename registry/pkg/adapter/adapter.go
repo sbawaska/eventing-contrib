@@ -137,7 +137,7 @@ func (a *registryAdapter) start(stopCh <-chan struct{}) error {
 			return nil
 		case <-ticker.C:
 			if err := a.pollRegistry(); err != nil {
-				a.logger.Error("error while polling registry. terminating polling", err)
+				a.logger.Error("error while polling registry, terminating polling: ", err)
 			}
 		}
 	}
@@ -171,7 +171,7 @@ func (a *registryAdapter) pollRegistry() error {
 	}
 	l, err := remote.List(repo)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot list tags for the given repository %s: %w", repositoryPath, err)
 	}
 	rawTags := a.env.Tags
 	var tags sets.String
